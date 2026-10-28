@@ -1,0 +1,14 @@
+# Example crontab entries (crontab -e). Adjust the path.
+#
+# 1) Alert-only health check every 5 minutes. healthcheck.sh exits non-zero with a reason; most cron
+#    setups mail any output, so print only when unhealthy:
+#    (no temporary file: the output is kept in a variable)
+*/5 * * * * out=$(/opt/grokbot-wechatclaw-bridge/healthcheck.sh 2>&1) || echo "$out"
+#
+# 2) Or let cron restart the bridge when it is down (1) or stale (3), but never on fatal states (2). Every minute
+#    is fine: the check is cheap, and right after a host wake-up healthcheck.sh holds STALE back for 90 s while the
+#    bridge reconnects by itself (only if it was healthy before the sleep), so this only fires when the in-process recovery failed (last resort):
+# * * * * * cd /opt/grokbot-wechatclaw-bridge && ./healthcheck.sh >/dev/null; rc=$?; if [ $rc -eq 1 ] || [ $rc -eq 3 ]; then ./stop.sh; ./start.sh; fi
+#
+# 3) Start on boot without systemd:
+# @reboot /opt/grokbot-wechatclaw-bridge/start.sh && nohup /opt/grokbot-wechatclaw-bridge/watchdog.sh >/dev/null 2>&1 &

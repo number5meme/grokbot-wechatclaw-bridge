@@ -1,0 +1,42 @@
+# Sample systemd unit (the project is checked out at /opt/grokbot-wechatclaw-bridge). Copy to /etc/systemd/system/, adjust User and paths, then:
+#   sudo systemctl daemon-reload && sudo systemctl enable --now grokbot-wechatclaw-bridge
+# Log in first (./login.sh) as the same user so state/credentials.json exists.
+[Unit]
+Description=grokbot-wechatclaw-bridge: WeChat ClawBot bridge (outbound-only webhook forwarder)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=3600
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=YOUR_USER
+WorkingDirectory=/opt/grokbot-wechatclaw-bridge
+ExecStart=/usr/bin/env node bin/bridge.js
+Restart=on-failure
+RestartSec=15
+# Never auto-restart on fatal states: 2 = configuration / not logged in, 14 = WeChat session expired (-14).
+RestartPreventExitStatus=2 14
+# Graceful stop: the bridge gets up to 10 s (BRIDGE_STOP_GRACE_MS) to finish messages in flight.
+TimeoutStopSec=20
+# Hardening. The bridge only needs outbound HTTPS/WSS and its own state/ and logs/ folders.
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+# Home folders are read-only for the service. If this folder (or MEDIA_DIR / STATE_DIR / LOG_DIR) is under a home
+# folder, keep it listed in ReadWritePaths below, which still makes it writable.
+ProtectHome=read-only
+ReadWritePaths=/opt/grokbot-wechatclaw-bridge/state /opt/grokbot-wechatclaw-bridge/logs
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+# Inbound media is processed one message at a time; this caps memory if something goes wrong.
+MemoryMax=1G
+
+[Install]
+WantedBy=multi-user.target

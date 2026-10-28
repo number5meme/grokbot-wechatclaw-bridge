@@ -1,0 +1,24 @@
+{
+  "name": "grokbot-wechatclaw-bridge",
+  "version": "1.1.0",
+  "description": "Bridge a WeChat ClawBot (Tencent iLink bot API) to any HTTP webhook or AI agent: QR login, long polling, outbound-only, owner protection, inbound media, image/video/file replies, self-recovering after host sleep.",
+  "license": "MIT",
+  "author": "number5meme",
+  "private": true,
+  "type": "commonjs",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test --test-timeout=60000 test/*.test.js",
+    "setup": "node bin/setup.js",
+    "login": "node bin/login.js",
+    "bridge": "node bin/bridge.js",
+    "healthcheck": "node bin/healthcheck.js"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "optionalDependencies": {
+    "silk-wasm": "^3.7.1"
+  },
+  "keywords": ["wechat", "weixin", "wechat-bot", "clawbot", "wechat-clawbot", "ilink", "openclaw", "openclaw-weixin", "tencent", "bot", "chatbot", "webhook", "bridge", "ai-agent", "llm", "grok", "grok-bot", "routine", "outbound-only"]
+}
