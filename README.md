@@ -466,7 +466,7 @@ Run a scheduled job on your agent platform (for example a Grok Bot routine) that
 
 ### Option 2: Always-on host
 
-The official WeChat integration only supports polling, not HTTP push, so there is no relay option. Run the bridge on a machine that stays awake instead.
+Run the bridge on a machine that stays awake, such as a server, a VM, or a computer with sleep disabled, ideally under `watchdog.sh`, cron, or systemd (see [Health checks and auto-restart](#health-checks-and-auto-restart)). Messages are then picked up as soon as they arrive.
 
 ## Credits
 
