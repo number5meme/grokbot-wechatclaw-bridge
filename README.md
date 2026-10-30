@@ -450,6 +450,24 @@ To re-bind: `./stop.sh && rm state/owner.json && ./start.sh` (or set `OWNER_ID`)
 - Media downloads run inside the poll loop, one item after another, so a very large download delays the next poll.
 - One bot account per bridge instance. Run separate copies (separate `STATE_DIR`) for more.
 
+## Known limitation: messages sent while the host is asleep
+
+The bridge long-polls the iLink API for new messages. If the machine running it suspends or sleeps (for example an idle cloud box or a laptop with the lid closed), polling stops, so nothing is forwarded or answered until the host wakes up. The bridge starts a fresh poll automatically as soon as the host wakes up. Polling is cursor-based, so that first poll normally returns the messages that arrived in the meantime and they are forwarded late rather than lost. How long the server keeps undelivered messages is not documented, so after a very long sleep some messages may not be redelivered.
+
+Nothing in the bridge can wake a sleeping host by itself. If your host sleeps, use one of these approaches:
+
+### Option 1: Scheduled wake-up (no external services)
+
+Run a scheduled job on your agent platform (for example a Grok Bot routine) that wakes the host every N minutes. On each wake the bridge reconnects so new messages are received again.
+
+- Worst-case reply delay is about N minutes (the minimum interval depends on your scheduler; Grok Bot routines allow 5 minutes).
+- Every wake-up is a full agent run and counts toward your usage limits, so shorter intervals cost more. 15 to 30 minutes is a reasonable start.
+- Messages that arrived while the host was asleep are picked up by the first poll after each wake-up.
+
+### Option 2: Always-on host
+
+The official WeChat integration only supports polling, not HTTP push, so there is no relay option. Run the bridge on a machine that stays awake instead.
+
 ## Credits
 
 - Protocol details follow Tencent's official MIT-licensed plugin
